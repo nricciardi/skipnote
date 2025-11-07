@@ -1,0 +1,25 @@
+# PyTorch + CUDA 12.6
+torch
+torchvision
+torchaudio
+
+# AI/ML e Whisper
+faster-whisper
+openai-whisper
+transformers
+ollama
+
+# Audio processing
+nvidia-pyindex
+nvidia-cudnn
+soundfile
+pydub
+noisereduce
+librosa
+scipy
+numpy
+
+# Computer vision / OCR
+opencv-python
+easyocr
+pillow
