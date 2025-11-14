@@ -19,4 +19,6 @@ COPY requirements.txt /workspace/
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
+COPY --from=ollama/ollama /bin/ollama /usr/local/bin/ollama
+
 CMD ["/bin/bash"]

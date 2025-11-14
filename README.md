@@ -54,4 +54,8 @@ FROM nvidia/cuda:13.0.0-cudnn9-runtime-ubuntu22.04
 
 
 
+## Wellknown Bug
+
+`easyocr` + `faster-whisper` on GPU causes a silent segfault in C++ CUDA library. Use `easyocr` with `gpu=False`.
+
 

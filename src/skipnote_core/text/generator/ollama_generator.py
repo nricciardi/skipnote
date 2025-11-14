@@ -12,6 +12,7 @@ class OllamaTextGenerator(TextGenerator):
         response = generate(
             model=self.model_name,
             prompt=prompt,
+            
         )
 
         return response['response']

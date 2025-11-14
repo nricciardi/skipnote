@@ -1,3 +1,4 @@
+import logging
 from typing import List, Optional
 from dataclasses import dataclass, field
 from PIL import Image
@@ -59,13 +60,17 @@ class BlockAggregator:
         output_blocks: List[OutputBlock] = []
         summary: Optional[str] = None
 
-        for block in blocks:
+        for index, block in enumerate(blocks):
+
+            logging.debug(f"Processing block {index + 1}/{len(blocks)}")
 
             image_texts = []
             for image in block.images:
+                logging.debug(f"Extracting text from image {len(image_texts) + 1}/{len(block.images)} of block {index + 1}")
                 image_text = self._extract_image_text(image)
                 image_texts.append(image_text)
 
+            logging.debug(f"Generating prompt for block...")
             prompt = self.context_prompt
 
             if summary is not None:
@@ -84,9 +89,13 @@ class BlockAggregator:
             
             prompt += self.action_prompt
 
+            logging.debug(f"Generating processed text for block...")
             processed_text = self.main_generator.generate(prompt)
+            logging.debug(f"Generated processed text length: {len(processed_text)} characters.")
 
+            logging.debug(f"Updating summary with processed text of block...")
             summary = self._update_summary(summary, processed_text)
+            logging.debug(f"Updated summary length: {len(summary)} characters.")
 
             output_block = OutputBlock(
                 original_text=block.text,

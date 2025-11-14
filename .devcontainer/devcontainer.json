@@ -9,7 +9,8 @@
     "--security-opt", "label=disable"
   ],
   "mounts": [
-    "source=${env:HOME}/.cache/huggingface,target=/huggingface,type=bind"
+    "source=${env:HOME}/.cache/huggingface,target=/huggingface,type=bind",
+    "source=/usr/share/ollama/.ollama,target=/root/.ollama,type=bind"
   ],
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=.,target=/workspace,type=bind",

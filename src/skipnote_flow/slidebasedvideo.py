@@ -43,14 +43,18 @@ class SlideBasedVideoFlow(Flow):
         return significant_frame_changes_indices
 
     def _compute_blocks(self, video_path: str, language: str, mean_slide_duration: float | int) -> Generator[Block, None, None]:
+        logging.info(f"Starting computation on video: {video_path}")
+
         logging.info("Extracting frames...")
         frames = self.frame_extractor.extract_frames(video_path, frame_interval=int(mean_slide_duration))
+        logging.info(f"Extracted {len(frames)} frames from video.")
 
         logging.info("Computing significant frame changes...")
         significant_frame_changes_indices = self._compute_frame_changes(frames)
 
         logging.info("Transcribing audio...")
         transcription = self.transcriber.transcribe(video_path, language=language)
+        logging.info(f"Extracted {len(transcription.chunks)} text chunks from video.")
 
         current_block_start_time = 0.0
         current_block_images: list[Image.Image] = []
@@ -104,7 +108,11 @@ class SlideBasedVideoFlow(Flow):
 
 
 
+
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
+
+    import os
     from skipnote_core.video.cv2_frame_extractor import CV2FrameExtractor
     from skipnote_core.audio.faster_whisper_transcriber import FasterWhisperAudioTranscriber
     from skipnote_core.multimodal.aggregator.block_aggregator import BlockAggregator
@@ -126,13 +134,16 @@ if __name__ == "__main__":
                 model_name="gemma3:12b",
                 language="en"
             ),
-            text_extractor=EasyOCRTextExtractor(languages=["en", "it"])
+            text_extractor=EasyOCRTextExtractor(languages=["en", "it"], gpu=False)
         ),
         frame_extractor=CV2FrameExtractor(),
-        transcriber=FasterWhisperAudioTranscriber(model_name="medium", device="cuda", compute_type="float16")
+        transcriber=FasterWhisperAudioTranscriber("small", device="cuda", compute_type="int8_float16")
     )
 
-    video_path = "/home/nricciardi/Repositories/skipnote/src/skipnote_flow/cuttedvideo.mp4"
-    output_blocks, summary = flow.run(video_path, language="it", mean_slide_duration=5.0)
+
+    path = os.path.join(os.getenv("PYTHONPATH"), "skipnote_flow/video.mp4")
+    
+    output_blocks, summary = flow.run(path, language="it", mean_slide_duration=5.0)
 
     print("Summary:", summary)
+    

@@ -1,17 +1,18 @@
 from typing import List
 import easyocr
 from PIL import Image
+import numpy as np
 from skipnote_core.image.text_extractor.text_extractor import TextExtractor
 
 
 class EasyOCRTextExtractor(TextExtractor):
 
-    def __init__(self, languages: List[str]):
+    def __init__(self, languages: List[str], gpu: bool = False) -> None:
         super().__init__()
-        self.reader = easyocr.Reader(languages)
+        self.reader = easyocr.Reader(languages, gpu=gpu)
 
     def extract_text(self, image: Image.Image, confidence_threshold: float, join_text: str = " ", **kwargs) -> str:
-        results = self.reader.readtext(image)
+        results = self.reader.readtext(np.array(image))
         text = ""
 
         for (_, detected_text, confidence) in results:
@@ -23,8 +24,11 @@ class EasyOCRTextExtractor(TextExtractor):
 
 
 if __name__ == "__main__":
-    image_path = "/home/nricciardi/Repositories/skipnote/src/skipnote_core/image/first_extracted_frame.jpg"
+    import os
+    
+    path = os.path.join(os.getenv("PYTHONPATH"), "skipnote_core/image/first_extracted_frame.jpg")
+
     text_extractor = EasyOCRTextExtractor(languages=["en", "it"])
-    extracted_text = text_extractor.extract_text_from_path(image_path, confidence_threshold=0.8, join_text=" ")
+    extracted_text = text_extractor.extract_text_from_path(path, confidence_threshold=0.8, join_text=" ")
 
     print(extracted_text)
