@@ -1,0 +1,17 @@
+{
+  "name": "Skipnote Dev",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "runArgs": [
+    "--gpus", "all",
+    "--security-opt", "label=disable"
+  ],
+  "mounts": [
+    "source=${env:HOME}/.cache/huggingface,target=/huggingface,type=bind"
+  ],
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=.,target=/workspace,type=bind",
+  "remoteUser": "root"
+}

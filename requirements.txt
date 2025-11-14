@@ -10,8 +10,6 @@ transformers
 ollama
 
 # Audio processing
-nvidia-pyindex
-nvidia-cudnn
 soundfile
 pydub
 noisereduce

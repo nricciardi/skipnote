@@ -46,7 +46,9 @@ class FasterWhisperAudioTranscriber(AudioTranscriber):
 
 
 if __name__ == "__main__":
-    audio_path = "/home/nricciardi/Repositories/skipnote/src/skipnote_core/audio/audio.mp3"
+    import os
+
+    audio_path = os.path.join(os.getenv("PYTHONPATH"), "skipnote_core/audio/audio.mp3")
     transcriber = FasterWhisperAudioTranscriber("medium", device="cuda", compute_type="int8_float16")
     transcription = transcriber.transcribe(audio_path, language="it", batch_size=4, beam_size=4)
 
