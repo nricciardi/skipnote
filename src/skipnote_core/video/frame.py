@@ -14,11 +14,11 @@ class Frame(ABC):
     def rgb(self) -> np.ndarray:
         return NotImplemented
     
-    def to_pillow(self) -> Image.Image:
+    def to_pil_image(self) -> Image.Image:
         return Image.fromarray(self.rgb)
     
     def save(self, file_path: str) -> None:
-        img = self.to_pillow()
+        img = self.to_pil_image()
         img.save(file_path)
 
 

@@ -16,9 +16,7 @@ class InputBlock:
 
 @dataclass(frozen=True)
 class OutputBlock:
-    original_text: str
     processed_text: str
-    original_images: List[Image.Image] = field(default_factory=list)
     image_text: List[str] = field(default_factory=list)
 
 
@@ -98,9 +96,7 @@ class BlockAggregator:
             logging.debug(f"Updated summary length: {len(summary)} characters.")
 
             output_block = OutputBlock(
-                original_text=block.text,
                 processed_text=processed_text,
-                original_images=block.images,
                 image_text=image_texts
             )
             output_blocks.append(output_block)

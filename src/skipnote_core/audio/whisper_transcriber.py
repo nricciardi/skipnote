@@ -16,29 +16,7 @@ class WhisperAudioTranscriber(AudioTranscriber):
     @override
     def transcribe(self, audio_path: str, language: str, preprocessing: bool = True, *, temperature: float = 0.0, beam_size: int = 1, initial_prompt: Optional[str] = None, **kwargs) -> Transcription:
 
-        input = audio_path
-
-        if preprocessing:
-            input = self.amplify_and_filter_voice(audio_path)
-
-        result = self._model.transcribe(
-            input,
-            language=language,
-            temperature=temperature,
-            condition_on_previous_text=True,
-            beam_size=beam_size,
-            initial_prompt=initial_prompt,
-        )
-        
-        transcription = Transcription()
-        for segment in result["segments"]:
-            transcription.add_chunk(TranscriptionChunk(
-                start_time=segment["start"],
-                end_time=segment["end"],
-                text=segment["text"]
-            ))
-
-        return transcription
+        return NotImplemented
 
 
 if __name__ == "__main__":

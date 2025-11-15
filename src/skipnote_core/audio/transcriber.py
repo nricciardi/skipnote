@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 import librosa
 import numpy as np
 import soundfile as sf
@@ -28,7 +29,7 @@ class AudioTranscriber(ABC):
         return amplified_waveform.astype(np.float32)
 
     @abstractmethod
-    def transcribe(self, audio_path: str, language: str, preprocessing: bool = True, **kwargs) -> Transcription:
+    def transcribe(self, audio_path: str, language: str, preprocessing: bool = True, word_timestamps: bool = False, initial_prompt: Optional[str] = None, **kwargs) -> Transcription:
         return NotImplemented
 
 

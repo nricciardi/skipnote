@@ -52,6 +52,39 @@ FROM nvidia/cuda:13.0.0-cudnn9-runtime-ubuntu22.04
 ```
 
 
+### Set default runtime
+
+If you see `runc` you are stil using regular Docker runtime.
+
+```
+docker info | grep -i "Default Runtime"
+```
+
+In order to set `nvidia` as default runtime (avoiding `--runtime=nvidia` in `docker run`):
+
+```
+sudo nano /etc/docker/daemon.json
+```
+
+and add `"default-runtime": "nvidia"`:
+
+```
+{
+  "runtimes": {
+    "nvidia": {
+      "path": "nvidia-container-runtime",
+      "runtimeArgs": []
+    }
+  },
+  "default-runtime": "nvidia"
+}
+```
+
+Then reboot or restart Docker:
+
+```
+sudo systemctl restart docker
+```
 
 
 ## Wellknown Bug

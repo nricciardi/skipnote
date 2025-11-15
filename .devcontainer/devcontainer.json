@@ -6,13 +6,15 @@
   },
   "runArgs": [
     "--gpus", "all",
+    "--runtime", "nvidia",
     "--security-opt", "label=disable"
   ],
   "mounts": [
     "source=${env:HOME}/.cache/huggingface,target=/huggingface,type=bind",
-    "source=/usr/share/ollama/.ollama,target=/root/.ollama,type=bind"
+    "source=/usr/share/ollama/.ollama,target=/usr/share/ollama,type=bind"
   ],
   "workspaceFolder": "/workspace",
   "workspaceMount": "source=.,target=/workspace,type=bind",
-  "remoteUser": "root"
+  "remoteUser": "root",
+  "overrideCommand": false
 }
