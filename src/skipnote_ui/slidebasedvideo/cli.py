@@ -113,11 +113,9 @@ def main():
             ),
             text_filter=OllamaFilter(
                 model_name=args.ollama_model,
-                language=args.language
             ),
             text_summarizer=OllamaSummarizer(
                 model_name=args.ollama_model,
-                language=args.language
             ),
             text_extractor=EasyOCRTextExtractor(languages=[args.language], gpu=False)
         ),
@@ -130,7 +128,9 @@ def main():
     outcome.save(args.output_path)
 
     if args.export_markdown:
-        pass
+        md_content = outcome.as_markdown(outcome.to_dict(args.output_path))
+        with open(os.path.join(args.output_path, "outcome.md"), "w", encoding="utf-8") as f:
+            f.write(md_content)
 
 
 if __name__ == "__main__":

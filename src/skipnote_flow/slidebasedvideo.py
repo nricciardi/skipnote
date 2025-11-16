@@ -72,20 +72,86 @@ class Outcome:
     sections: List[Section]
     summary: Optional[str] = None
 
-    def save(self, dir_path: str) -> None:
+    def to_dict(self, dir_path: str, **kwargs) -> Dict:
+        return {
+            "created_at": self.created_at.isoformat(),
+            "elaboration_time": self.elaboration_time,
+            "summary": self.summary,
+            "sections": [
+                section.to_dict(dir_path, replace_images_with_paths=True)
+                for section in self.sections
+            ],
+        }
+
+    def save(self, dir_path: str, **kwargs) -> Dict:
         
         os.makedirs(dir_path, exist_ok=True)
 
+        data = self.to_dict(dir_path, **kwargs)
+
         with open(os.path.join(dir_path, "outcome.json"), "w", encoding="utf-8") as f:
-            json.dump({
-                "created_at": self.created_at.isoformat(),
-                "elaboration_time": self.elaboration_time,
-                "summary": self.summary,
-                "sections": [
-                    section.to_dict(dir_path, replace_images_with_paths=True)
-                    for section in self.sections
-                ],
-            }, f, indent=4)
+            json.dump(data, f, indent=4)
+
+        return data
+
+    @classmethod
+    def as_markdown(cls, data: Dict) -> str:
+
+        md = []
+
+        # --- Big title ---
+        md.append(f"# Report\n")
+
+        # --- General information ---
+        created_at = data.get("created_at")
+        if created_at:
+            try:
+                created_at_dt = datetime.datetime.fromisoformat(created_at)
+                created_at_str = created_at_dt.strftime("%Y-%m-%d %H:%M:%S")
+            except Exception:
+                created_at_str = created_at
+        else:
+            created_at_str = "Unknown"
+
+        elaboration_time = data.get("elaboration_time", "Unknown")
+
+        md.append(f"**Created at:** {created_at_str}  \n")
+        md.append(f"**Elaboration time:** {elaboration_time} seconds\n")
+
+        # --- Summary ---
+        summary = data.get("summary")
+        if summary:
+            md.append(f"\n## Summary\n\n{summary}\n")
+
+        # --- Sections ---
+        sections = data.get("sections", [])
+        for i, section in enumerate(sections, start=1):
+            md.append(f"\n## Section {i}\n")
+
+            start_time = section.get("start_time", "Unknown")
+            end_time = section.get("end_time", "Unknown")
+            md.append(f"**Time:** {start_time} - {end_time} seconds\n")
+
+            text = section.get("text")
+            if text:
+                md.append(f"\n### Processed text\n\n{text}\n")
+
+            processed_text = section.get("processed_text")
+            if processed_text:
+                md.append(f"\n### Processed text\n\n{processed_text}\n")
+
+            md.append("\n### Images\n\n")
+
+            images = section.get("images", [])
+            for img in images:
+                md.append(f"\n![Image]({img})\n")
+
+            image_texts = section.get("image_texts", [])
+            for itext in image_texts:
+                if itext:
+                    md.append(f"\n**Image text:** {itext}\n")
+
+        return "\n".join(md)
 
 
 @dataclass
@@ -205,7 +271,7 @@ class SlideBasedVideoFlow(Flow):
                 images=section.images
             ))
 
-        output_blocks, summary = self.block_aggregator.aggregate(input_blocks)
+        output_blocks, summary = self.block_aggregator.aggregate(input_blocks, language=language)
 
         outcome_sections: List[ProcessedSection] = []
         for section, output_block in zip(sections, output_blocks):
@@ -250,11 +316,9 @@ if __name__ == "__main__":
             ),
             text_filter=OllamaFilter(
                 model_name=ollama_model,
-                language="en"
             ),
             text_summarizer=OllamaSummarizer(
                 model_name=ollama_model,
-                language="en"
             ),
             text_extractor=EasyOCRTextExtractor(languages=["en"], gpu=False)
         ),
@@ -266,9 +330,14 @@ if __name__ == "__main__":
     input_path = os.path.join(os.getenv("PYTHONPATH"), "skipnote_flow/video.mp4")
     output_path = os.path.join(os.getenv("PYTHONPATH"), "skipnote_flow/outcome")
     
-    outcome = flow.run(input_path, language="en", post_processing=False, min_slide_duration=5.0, beam_size=4)
+    outcome = flow.run(input_path, language="en", post_processing=True, min_slide_duration=5.0, beam_size=4)
 
     print("Summary:", outcome.summary)
 
-    outcome.save(output_path)
+    data = outcome.save(output_path)
+
+    md_content = Outcome.as_markdown(data)
+
+    with open(os.path.join(output_path, "outcome.md"), "w", encoding="utf-8") as f:
+        f.write(md_content)
     

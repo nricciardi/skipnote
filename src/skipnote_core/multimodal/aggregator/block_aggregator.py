@@ -29,28 +29,28 @@ class BlockAggregator:
     text_extractor: TextExtractor
     text_extraction_confidence_threshold: float = 0.8
     summary_max_length: int = 1000
-    context_prompt: str = "Context: You are an expert at fixing transcribed text. Your task is to clean up the text by removing any noise, irrelevant content, and fixing any transcription errors. Provide a clear version of the text without removing any important information.\n\n"
+    context_prompt: str = "Context: You are an expert at fixing transcribed text. Your task is to clean up the text by removing any noise, irrelevant content, and fixing any transcription errors. Provide a clear version of the text without removing any important information. Do not include any text that is not relevant or necessary such as \"Let me know if you need any further assistance!\".\n\n"
     summary_template: str = "Summary of previous content: {summary}\n\n"
     text_template: str = "Text on which to operate: {text}\n\n"
     image_texts_template: str = "Extracted text from related images: {image_texts}\n\n"
     action_prompt: str = "Result:"
 
 
-    def _extract_image_text(self, image: Image.Image) -> str:
+    def _extract_image_text(self, image: Image.Image, language: Optional[str]) -> str:
         image_text = self.text_extractor.extract_text(image, self.text_extraction_confidence_threshold)
-        filtered_image_text = self.text_filter.filter(image_text)
+        filtered_image_text = self.text_filter.filter(image_text, language=language)
         return filtered_image_text
     
-    def _update_summary(self, current_summary: Optional[str], new_text: str) -> str:
+    def _update_summary(self, current_summary: Optional[str], new_text: str, language: Optional[str]) -> str:
         if current_summary is None:
             combined_text = new_text
         else:
             combined_text = current_summary + "\n" + new_text
         
-        updated_summary = self.text_summarizer.summarize(combined_text, max_length=self.summary_max_length)
+        updated_summary = self.text_summarizer.summarize(combined_text, max_length=self.summary_max_length, language=language)
         return updated_summary
 
-    def aggregate(self, blocks: List[InputBlock]) -> tuple[List[OutputBlock], Optional[str]]:
+    def aggregate(self, blocks: List[InputBlock], language: Optional[str] = None) -> tuple[List[OutputBlock], Optional[str]]:
 
         if len(blocks) == 0:
             return [], None
@@ -65,7 +65,7 @@ class BlockAggregator:
             image_texts = []
             for image in block.images:
                 logging.debug(f"Extracting text from image {len(image_texts) + 1}/{len(block.images)} of block {index + 1}")
-                image_text = self._extract_image_text(image)
+                image_text = self._extract_image_text(image, language=language)
                 image_texts.append(image_text)
 
             logging.debug(f"Generating prompt for block...")
@@ -92,7 +92,7 @@ class BlockAggregator:
             logging.debug(f"Generated processed text length: {len(processed_text)} characters.")
 
             logging.debug(f"Updating summary with processed text of block...")
-            summary = self._update_summary(summary, processed_text)
+            summary = self._update_summary(summary, processed_text, language=language)
             logging.debug(f"Updated summary length: {len(summary)} characters.")
 
             output_block = OutputBlock(
