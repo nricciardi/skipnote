@@ -134,7 +134,7 @@ class Outcome:
 
             text = section.get("text")
             if text:
-                md.append(f"\n### Processed text\n\n{text}\n")
+                md.append(f"\n### Transcription\n\n{text}\n")
 
             processed_text = section.get("processed_text")
             if processed_text:
