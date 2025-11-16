@@ -95,7 +95,7 @@ class Outcome:
         return data
 
     @classmethod
-    def as_markdown(cls, data: Dict) -> str:
+    def as_markdown(cls, data: Dict, relative_image_base_path: Optional[str] = None) -> str:
 
         md = []
 
@@ -144,6 +144,10 @@ class Outcome:
 
             images = section.get("images", [])
             for img in images:
+
+                if relative_image_base_path is not None:
+                    img = os.path.relpath(img, relative_image_base_path)
+
                 md.append(f"\n![Image]({img})\n")
 
             image_texts = section.get("image_texts", [])

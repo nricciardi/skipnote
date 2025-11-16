@@ -1,6 +1,9 @@
+#!/venv/bin/python3
+
 import argparse
 import os
 import logging
+from time import sleep
 import torch
 from skipnote_core.video.cv2_frame_extractor import CV2FrameExtractor
 from skipnote_core.audio.faster_whisper_transcriber import FasterWhisperAudioTranscriber
@@ -15,7 +18,7 @@ from skipnote_flow.slidebasedvideo import SlideBasedVideoFlow
 logging.basicConfig(level=logging.INFO)
 
 
-def main():
+def get_parser():
     parser = argparse.ArgumentParser(
         description="CLI for video processing with Ollama model"
     )
@@ -35,14 +38,14 @@ def main():
     )
 
     parser.add_argument(
-        "--model-size",
+        "--transcriber-model",
         type=str,
         required=True,
         help="Size of the transcription model"
     )
 
     parser.add_argument(
-        "--compute_type",
+        "--transcriber-compute-type",
         type=str,
         required=False,
         default="int8_float16",
@@ -50,7 +53,7 @@ def main():
     )
 
     parser.add_argument(
-        "--beam-size",
+        "--transcriber-beam-size",
         type=int,
         required=False,
         default=1,
@@ -104,7 +107,23 @@ def main():
         help="Export output in Markdown format (default: false)"
     )
 
+    return parser
+
+def main():
+    logging.info("Starting Ollama...")
+    os.popen("ollama serve > /dev/null 2>&1 &")
+
+    sleep(2)  # Give some time for Ollama to start
+
+    logging.info("Available Ollama models:")
+    logging.info(f"\n\n{os.popen('ollama list').read()}\n\n")
+
+
+    parser = get_parser()
     args = parser.parse_args()
+
+
+    logging.info(f"Ollama model selected for this run: {args.ollama_model}")
     
     flow = SlideBasedVideoFlow(
         block_aggregator=BlockAggregator(
@@ -120,17 +139,24 @@ def main():
             text_extractor=EasyOCRTextExtractor(languages=[args.language], gpu=False)
         ),
         frame_extractor=CV2FrameExtractor(),
-        transcriber=FasterWhisperAudioTranscriber(args.model_size, device=args.device, compute_type=args.compute_type)
+        transcriber=FasterWhisperAudioTranscriber(args.transcriber_model, device=args.device, compute_type=args.transcriber_compute_type)
     )
 
-    outcome = flow.run(args.video_path, language=args.language, post_processing=args.post_processing, min_slide_duration=args.min_slide_duration, beam_size=args.beam_size)
+    outcome = flow.run(args.video_path, language=args.language, post_processing=args.post_processing, min_slide_duration=args.min_slide_duration, beam_size=args.transcriber_beam_size)
 
-    outcome.save(args.output_path)
+    logging.info(f"Saving outcome to {args.output_path}")
+
+    data = outcome.save(args.output_path)
 
     if args.export_markdown:
-        md_content = outcome.as_markdown(outcome.to_dict(args.output_path))
-        with open(os.path.join(args.output_path, "outcome.md"), "w", encoding="utf-8") as f:
+        md_path = os.path.join(args.output_path, "outcome.md")
+        logging.info(f"Exporting outcome to Markdown at {md_path}")
+
+        md_content = outcome.as_markdown(data, relative_image_base_path=args.output_path)
+        with open(md_path, "w", encoding="utf-8") as f:
             f.write(md_content)
+
+    logging.info("Processing complete.")
 
 
 if __name__ == "__main__":

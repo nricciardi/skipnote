@@ -5,7 +5,21 @@ Work in progress...
 
 ## Install
 
-### Docker
+You only require Docker installed.
+
+If you want better performance, NVIDIA GPU is needed.
+
+If you have a NVIDIA GPU, you must setup Docker to exploit it. Follow [these](#install-nvidia-toolkit-for-docker).
+
+Then install Skipnote, creating an image `skipnote` based on current `src`:
+
+```
+docker build --tag skipnote .
+```
+
+Finally, follow [this](#run) to run!
+
+### Install NVIDIA Toolkit for Docker 
 
 #### Opensuse Tumbleweed
 
@@ -52,7 +66,7 @@ FROM nvidia/cuda:13.0.0-cudnn9-runtime-ubuntu22.04
 ```
 
 
-### Set default runtime
+#### Set default runtime
 
 If you see `runc` you are stil using regular Docker runtime.
 
@@ -87,8 +101,43 @@ sudo systemctl restart docker
 ```
 
 
+
+
+## Run
+
+### Slide-based Video
+
+```
+docker run -v <huggingface-cache>:/huggingface -v <ollama-directory>:/usr/share/ollama -v <input-video>:/input -v <output-directory-path>:/output \
+--rm --gpus=all --runtime=nvidia --security-opt label=disable --name skipnote \
+skipnote slidebasedvideo_cli --video-path /input --output-path /output --export-markdown \
+--language <lang> --ollama-model <model> --transcriber-model <model> --transcriber-compute-type <type> --transcriber-beam-size <size>
+```
+
+> [!NOTE]
+> Remove `--runtime=nvidia` if you do **not** have setup NVIDIA GPU toolkit.
+
+> [!NOTE]
+> You could also add `--post-processing` to `slidebasedvideo_cli` 
+
+For example, on **Linux**:
+
+```
+docker run -v $HOME/.cache/huggingface:/huggingface -v /usr/share/ollama/.ollama:/usr/share/ollama -v <input-video>:/input -v <output-directory-path>:/output \
+--rm --gpus=all --runtime=nvidia --security-opt label=disable --name skipnote \
+skipnote slidebasedvideo_cli --video-path /input --output-path /output --export-markdown \
+--language en --ollama-model gemma3:12b --transcriber-model large-v3-turbo --transcriber-compute-type int8_float16 --transcriber-beam-size 4
+```
+
+For example, on **Windows**:
+
+```
+docker run -v C:\Users\<YOU>\.cache\huggingface:/huggingface -v C:\Users\<YOU>\ollama:/usr/share/ollama/.ollama -v <input-video>:/input -v <output-directory-path>:/output \
+--rm --gpus=all --runtime=nvidia --security-opt label=disable --name skipnote \
+skipnote slidebasedvideo_cli --video-path /input --output-path /output --export-markdown \
+--language en --ollama-model gemma3:12b --transcriber-model large-v3-turbo --transcriber-compute-type int8_float16 --transcriber-beam-size 4
+```
+
 ## Wellknown Bug
 
 `easyocr` + `faster-whisper` on GPU causes a silent segfault in C++ CUDA library. Use `easyocr` with `gpu=False`.
-
-
