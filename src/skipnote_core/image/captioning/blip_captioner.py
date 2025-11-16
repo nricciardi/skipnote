@@ -23,7 +23,10 @@ class BlipCaptioner(Captioner):
 
 
 if __name__ == "__main__":
-    image_path = "/home/nricciardi/Repositories/skipnote/src/skipnote_core/image/first_extracted_frame.jpg"
+    import os
+
+
+    image_path = os.path.join(os.getenv("PYTHONPATH"), "skipnote_core/image/first_extracted_frame.jpg")
     captioner = BlipCaptioner("Salesforce/blip-image-captioning-base")
     caption = captioner.generate_caption_from_path(image_path)
 

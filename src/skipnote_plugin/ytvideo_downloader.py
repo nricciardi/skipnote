@@ -21,7 +21,11 @@ class YTVideoDownloader:
     
 
 if __name__ == "__main__":
+    import os
+
     YTVideoDownloader.download_video(
         url="https://www.youtube.com/watch?v=JXsQOpGMjU4&list=PLwTFe8oQBgKbRf1NU5NZc_Zmti1O6dt1f&index=2",
-        output_path="/home/nricciardi/Repositories/skipnote/src/skipnote_plugin/video.mp4"
+        output_path=os.path.join(os.getenv("PYTHONPATH"), "skipnote_plugin/video.mp4")
     )
+
+    print("Download completed.")

@@ -28,7 +28,7 @@ class Section:
         image_dir_path = os.path.join(dir_path, image_dir)
         os.makedirs(image_dir_path, exist_ok=True)
 
-        if not replace_images_with_paths:
+        if replace_images_with_paths:
             image_paths = []
             for image in self.images:
                 image_path = os.path.join(image_dir_path, f"{uuid.uuid4().hex}.png")
@@ -82,7 +82,7 @@ class Outcome:
                 "elaboration_time": self.elaboration_time,
                 "summary": self.summary,
                 "sections": [
-                    section.to_dict(dir_path)
+                    section.to_dict(dir_path, replace_images_with_paths=True)
                     for section in self.sections
                 ],
             }, f, indent=4)
@@ -110,18 +110,18 @@ class SlideBasedVideoFlow(Flow):
 
         return significant_frame_changes_indices
     
-    def compute_sections(self, video_path: str, language: str, mean_slide_duration: float, setup_time: Optional[float]) -> Generator[Section, None, None]:
+    def compute_sections(self, video_path: str, language: str, *, min_slide_duration: float, setup_time: Optional[float], explicit_word_timestamps: bool = False, **kwargs) -> Generator[Section, None, None]:
         logging.info(f"Starting computation on video: {video_path}")
 
         logging.info("Extracting frames...")
-        frames = self.frame_extractor.extract_frames(video_path, frame_interval=int(mean_slide_duration))
+        frames = self.frame_extractor.extract_frames(video_path, frame_interval=int(min_slide_duration))
         logging.info(f"Extracted {len(frames)} frames from video.")
 
         logging.info("Computing significant frame changes...")
         relevant_frame_changes_indices = self._compute_frame_changes(frames)
 
         logging.info("Transcribing audio...")
-        transcription = self.transcriber.transcribe(video_path, language=language, word_timestamps=True)
+        transcription = self.transcriber.transcribe(video_path, language=language, word_timestamps=explicit_word_timestamps, **kwargs)
         logging.info(f"Extracted {len(transcription.chunks)} text chunks from video.")
 
         # Filter out frame changes that occur before setup_time
@@ -166,14 +166,14 @@ class SlideBasedVideoFlow(Flow):
             images=[last_frame.to_pil_image()],
         )
 
-    def run(self, video_path: str, language: str, post_processing: bool, mean_slide_duration: float = 5.0, setup_time: Optional[float] = 5.0):
+    def run(self, video_path: str, language: str, post_processing: bool, min_slide_duration: float, setup_time: Optional[float] = None, **kwargs) -> Outcome:
 
         init_time = datetime.datetime.now()
 
         logging.info("Running...")
 
         logging.info("Computing sections...")
-        sections = list(self.compute_sections(video_path, language, mean_slide_duration, setup_time))
+        sections = list(self.compute_sections(video_path, language, min_slide_duration=min_slide_duration, setup_time=setup_time, **kwargs))
 
         logging.info(f"Computed {len(sections)} sections in {(datetime.datetime.now() - init_time).total_seconds()} seconds.")
 
@@ -234,7 +234,7 @@ if __name__ == "__main__":
 
     import os
     from skipnote_core.video.cv2_frame_extractor import CV2FrameExtractor
-    from skipnote_core.audio.faster_whisper_transcriber import FasterWhisperAudioTranscriber, FasterWhisperAudioBatchedTranscriber
+    from skipnote_core.audio.faster_whisper_transcriber import FasterWhisperAudioTranscriber
     from skipnote_core.multimodal.aggregator.block_aggregator import BlockAggregator
     from skipnote_core.text.summarizer.ollama_summarizer import OllamaSummarizer
     from skipnote_core.text.filter.ollama_filter import OllamaFilter
@@ -259,14 +259,16 @@ if __name__ == "__main__":
             text_extractor=EasyOCRTextExtractor(languages=["en"], gpu=False)
         ),
         frame_extractor=CV2FrameExtractor(),
-        transcriber=FasterWhisperAudioBatchedTranscriber("small", device="cuda", compute_type="int8_float16")
+        transcriber=FasterWhisperAudioTranscriber("small", device="cuda", compute_type="int8_float16")
     )
 
 
     input_path = os.path.join(os.getenv("PYTHONPATH"), "skipnote_flow/video.mp4")
     output_path = os.path.join(os.getenv("PYTHONPATH"), "skipnote_flow/outcome")
     
-    output_blocks, summary = flow.run(input_path, language="en", post_processing=True, mean_slide_duration=5.0)
+    outcome = flow.run(input_path, language="en", post_processing=False, min_slide_duration=5.0, beam_size=4)
 
-    print("Summary:", summary)
+    print("Summary:", outcome.summary)
+
+    outcome.save(output_path)
     

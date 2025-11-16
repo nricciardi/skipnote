@@ -38,12 +38,14 @@ class CV2FrameExtractor(VideoFrameExtractor):
     
 
 if __name__ == "__main__":
-    video_path = "/home/nricciardi/Repositories/skipnote/src/skipnote_core/video/video.mp4"
+    import os
+
+    video_path = os.path.join(os.getenv("PYTHONPATH"), "skipnote_core/video/video.mp4")
     extractor = CV2FrameExtractor()
     frames = extractor.extract_frames(video_path, frame_interval=60)
     print(f"Extracted {len(frames)} frames from the video.")
 
-    frames[0].save("/home/nricciardi/Repositories/skipnote/src/skipnote_core/video/first_extracted_frame.jpg")
+    frames[0].save(os.path.join(os.getenv("PYTHONPATH"), "skipnote_core/video/first_extracted_frame.jpg"))
     print(frames[0].timestamp)
     print(frames[1].timestamp)
 

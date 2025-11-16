@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
+import numpy as np
 
 
 @dataclass
@@ -43,17 +44,25 @@ class Transcription:
             if chunk.end_time < from_time:
                 continue
             if chunk.start_time > to_time:
-                continue
+                break
 
+            words = []
             if chunk.words:
-                words = []
                 for word in chunk.words:
                     if word.start_time >= from_time and word.end_time <= to_time:
                         words.append(word.text)
 
-                chunks.append(words)
             else:
-                raise ValueError("Chunk does not contain word-level timestamps.")
+                words = chunk.text.split(" ")
+                timestamps = list(np.linspace(chunk.start_time, chunk.end_time, num=len(words)+1))
+
+                words = [
+                    words[i] for i in range(len(words)) 
+                    if timestamps[i] >= from_time and timestamps[i+1] <= to_time
+                ]
+
+            chunks.append(words)
+                
 
         return chunks
     

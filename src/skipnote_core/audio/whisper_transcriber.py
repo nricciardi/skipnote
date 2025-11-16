@@ -17,11 +17,3 @@ class WhisperAudioTranscriber(AudioTranscriber):
     def transcribe(self, audio_path: str, language: str, preprocessing: bool = True, *, temperature: float = 0.0, beam_size: int = 1, initial_prompt: Optional[str] = None, **kwargs) -> Transcription:
 
         return NotImplemented
-
-
-if __name__ == "__main__":
-    audio_path = "/home/nricciardi/Repositories/skipnote/src/skipnote_core/audio/audio.mp3"
-    transcriber = WhisperAudioTranscriber("medium", device="cuda")
-    transcription = transcriber.transcribe(audio_path, language="it", beam_size=4, initial_prompt="Questa è una videolezione di psicologia.")
-
-    print(transcription.build_full_text())

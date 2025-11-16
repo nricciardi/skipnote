@@ -1,0 +1,85 @@
+{
+    "created_at": "2025-11-16T10:21:49.705751",
+    "elaboration_time": 9.460071,
+    "summary": null,
+    "sections": [
+        {
+            "start_time": 0.0,
+            "end_time": 5.0,
+            "text": null,
+            "images": []
+        },
+        {
+            "start_time": 5,
+            "end_time": 15,
+            "text": "Good morning. This is a short introduction to the course on Distributed Artificial Intelligence. I'm not Bonelli, I",
+            "images": [
+                "/workspace/src/skipnote_flow/outcome/images/bb9aae3acba946199ce50a8b78eed4d2.png"
+            ]
+        },
+        {
+            "start_time": 15,
+            "end_time": 60,
+            "text": "be the teacher of this course and I have 25 years and more of experience in this area. I have done scientific research in this area and I have published more than 300 papers and 10 books so I'm quite an expert in the area and I think I could be the right person to teach this course. My contacts are written in the slides, so feel free to contact me in either way to questions about the content of the course, etc. So what is the key goal of this",
+            "images": [
+                "/workspace/src/skipnote_flow/outcome/images/da0fd3316d6b4dc790c5686aaee1a722.png"
+            ]
+        },
+        {
+            "start_time": 60,
+            "end_time": 115,
+            "text": "Understanding the key concepts behind distributed intelligence which can be distributed natural intelligence or distributed artificial intelligence. So our goal is to learn to develop and build and understand distributed software system based on showing intelligent and active behavior. And to this end, we will also have to learn about distributed intelligence in natural and social systems. The concept of intelligence is very diverse, so we can have systems with very little intelligence, systems with autonomous intelligent learning components. So we span the different spectrum of intelligence in this course. We will touch several",
+            "images": [
+                "/workspace/src/skipnote_flow/outcome/images/7f57dd037f97489a8bbb26d87038b30d.png"
+            ]
+        },
+        {
+            "start_time": 115,
+            "end_time": 145,
+            "text": "all of which contribute pieces to the very picture of this universal artificial intelligence. All these keywords might be a bit meaningless to you so far, but we will unfold all these definitions, all these concepts, and the technologies and models behind. The exam",
+            "images": [
+                "/workspace/src/skipnote_flow/outcome/images/7e31bd42864e407f9c4cd7d6c1429ed6.png"
+            ]
+        },
+        {
+            "start_time": 145,
+            "end_time": 190,
+            "text": "consist in an oral exam, where I will ask you questions about all the content of the course, and a project, an individual project, to be presented and discussed during the exam. But it is possible to disjoin the oral exam and the presentation of the project, so you can have it in two different dates. The exams will be held nearly every Monday during January and February. Just fix a date together and you can have your exam based on your own needs. The project is for you to understand",
+            "images": [
+                "/workspace/src/skipnote_flow/outcome/images/01854c0f4eda444fb117a847b481e91b.png"
+            ]
+        },
+        {
+            "start_time": 190,
+            "end_time": 245,
+            "text": "the project could be actually, but in general it will consist in either the development of a distributed system with some form distributed intelligence meet and or the simulation of a distributed intelligence system or distributed intelligence phenomenon. In any case, the choice of the project is up to you. It is you that can decide which argument, which topic of the course you like more and I can propose you in a specific project in the topic you are more interested in. I will upload in Dolly some examples of past projects for you to better understand what my expectations could be for a project. The Dolly site is the",
+            "images": [
+                "/workspace/src/skipnote_flow/outcome/images/fd8bed1f3b2c49f7a4e33cbd44fd7463.png"
+            ]
+        },
+        {
+            "start_time": 245,
+            "end_time": 280,
+            "text": "site where I will store all the material of the course, I will use it for communication, for posting news, material, whatever. Also the course will be held in Microsoft Teams and all the lessons will be record and available on Teams. I will also create a YouTube playlist where I will upload all the recording of all the lessons",
+            "images": [
+                "/workspace/src/skipnote_flow/outcome/images/5a71932335604068800c3af3b6e36a4a.png"
+            ]
+        },
+        {
+            "start_time": 280,
+            "end_time": 305,
+            "text": "the course. There's no need to buy specific books for this course because all the needed material will be available on Dolly. In any case, there are two key books that, if you're interested in, you can refer to. The Distribute System Book of Therbaung and Rastin, and the Multi-Agent System Book by Michael Burridge.",
+            "images": [
+                "/workspace/src/skipnote_flow/outcome/images/b431b018431f49618a9e6d44eedabf5f.png"
+            ]
+        },
+        {
+            "start_time": 305,
+            "end_time": 301.66,
+            "text": null,
+            "images": [
+                "/workspace/src/skipnote_flow/outcome/images/5536e171bab14355b540b55cd6319eb9.png"
+            ]
+        }
+    ]
+}
